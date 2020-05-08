@@ -10,6 +10,7 @@ import java.util.List;
 
 import it.polito.tdp.extflightdelays.model.Airline;
 import it.polito.tdp.extflightdelays.model.Airport;
+import it.polito.tdp.extflightdelays.model.CollegamentoAeroporti;
 import it.polito.tdp.extflightdelays.model.Flight;
 
 public class ExtFlightDelaysDAO {
@@ -90,5 +91,30 @@ public class ExtFlightDelaysDAO {
 			System.out.println("Errore connessione al database");
 			throw new RuntimeException("Error Connection Database");
 		}
+	}
+	
+	public List<CollegamentoAeroporti> collegamenti(int dist){
+		final String sql = "SELECT DISTINCT ORIGIN_AIRPORT_ID AS o1, DESTINATION_AIRPORT_ID d1, DISTANCE distance" + 
+				" FROM flights " + 
+				" WHERE DISTANCE >= ? ";
+		List<CollegamentoAeroporti> coll = new ArrayList<>();
+		
+		try {
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, dist);
+			ResultSet res = st.executeQuery();
+			
+			while(res.next()) {
+				CollegamentoAeroporti c = new CollegamentoAeroporti(res.getInt("o1"), res.getInt("d1"), res.getInt("distance"));
+				coll.add(c);
+			}
+			
+			conn.close();
+			return coll;
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
